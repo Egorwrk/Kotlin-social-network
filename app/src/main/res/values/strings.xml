@@ -11,4 +11,7 @@
     <string name="status">status</string>
     <string name="fab">fab</string>
     <string name="three_dots_title">Three dots title</string>
+    <string name="description_avatar">avatar</string>
+    <string name="input_post_text_placeholder">Input post text</string>
+    <string name="add_btn_text">Add</string>
 </resources>

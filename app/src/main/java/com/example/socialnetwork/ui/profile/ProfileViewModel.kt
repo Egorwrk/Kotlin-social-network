@@ -15,4 +15,12 @@ class ProfileViewModel : ViewModel() {
         value = "I'm here"
     }
     val status: LiveData<String> = _status
+
+    private val _postList = ArrayList<String>()
+    private val _postListLiveData: MutableLiveData<List<String>> = MutableLiveData()
+    fun addPost(post: String) {
+        _postList.add(post)
+        _postListLiveData.value = _postList
+    }
+    val postListLive = _postListLiveData
 }
