@@ -16,9 +16,9 @@ class ProfileViewModel : ViewModel() {
     }
     val status: LiveData<String> = _status
 
-    private val _postList = ArrayList<String>()
-    private val _postListLiveData: MutableLiveData<List<String>> = MutableLiveData()
-    fun addPost(post: String) {
+    private val _postList = ArrayList<PostItem>()
+    private val _postListLiveData: MutableLiveData<ArrayList<PostItem>> = MutableLiveData()
+    fun addPost(post: PostItem) {
         _postList.add(post)
         _postListLiveData.value = _postList
     }

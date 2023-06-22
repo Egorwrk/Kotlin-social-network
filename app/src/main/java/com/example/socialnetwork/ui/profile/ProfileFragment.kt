@@ -1,11 +1,9 @@
 package com.example.socialnetwork.ui.profile
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
@@ -35,6 +33,12 @@ class ProfileFragment : Fragment() {
         profileViewModel.login.observe(viewLifecycleOwner) {
             textView.text = it
         }
+
+        val statusView: TextView = binding.profileUserStatus
+        profileViewModel.status.observe(viewLifecycleOwner) {
+            statusView.text = it
+        }
+
         return root
     }
 
@@ -42,25 +46,17 @@ class ProfileFragment : Fragment() {
         binding.addBtn.setOnClickListener {
             val textInput: EditText = binding.postTextInput
             if (textInput.text.trim().isNotEmpty()) {
-                profileViewModel.addPost("${textInput.text}")
-                profileViewModel.postListLive.observe(viewLifecycleOwner) {
-                    Log.d("Add btn pressed", "Add btn $it")
-                }
+                val newPost = PostItem(textInput.text.toString())
+                profileViewModel.addPost(newPost)
                 textInput.text.clear()
             } else {
                 Toast.makeText(getView()?.context, "empty post text", Toast.LENGTH_SHORT).show()
             }
         }
 
-        profileViewModel.postListLive.observe(viewLifecycleOwner) { post ->
+        profileViewModel.postListLive.observe(viewLifecycleOwner) { posts ->
             val postList: ListView = binding.postList
-            val adapter = activity?.let {
-                ArrayAdapter(
-                    it,
-                    android.R.layout.simple_spinner_item,
-                    post
-                )
-            }
+            val adapter = activity?.let { PostsAdapter(it, posts) }
             postList.adapter = adapter
         }
     }
