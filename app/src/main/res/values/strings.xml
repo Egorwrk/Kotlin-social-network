@@ -14,7 +14,7 @@
     <string name="description_avatar">avatar</string>
     <string name="input_post_text_placeholder">Input post text</string>
     <string name="add_btn_text">Add</string>
-    <string name="login">login</string>
+    <string name="email">email</string>
     <string name="password">password</string>
     <string name="registration">Registration</string>
 </resources>

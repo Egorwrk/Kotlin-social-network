@@ -3,19 +3,14 @@ package com.example.socialnetwork
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.example.socialnetwork.databinding.ActivityAuthBinding
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import org.json.JSONObject
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
-
 
 class AuthActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAuthBinding
@@ -26,17 +21,19 @@ class AuthActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val registrationBtn: Button = binding.logRegBtn
-        registrationBtn.setOnClickListener() {
-            fetchAuth().start()
+        registrationBtn.setOnClickListener {
+            val email: EditText = binding.loginText
+            val password: EditText = binding.passwordText
+            if (email.text.trim().isNotEmpty() && password.text.trim().isNotEmpty()) {
+                fetchAuth(email.text.toString(), password.text.toString()).start()
+            } else {
+                println("enter email and password")
+            }
         }
     }
 
-    private fun fetchAuth(): Thread {
-        val myJsonObject = JSONObject()
-        myJsonObject.put("email", "egorsocialnetwork@gmail.com")
-        myJsonObject.put("password", "socialnetwork")
-        myJsonObject.put("rememberMe", true)
-        val postData = "email=egorsocialnetwork@gmail.com&password=socialnetwork&rememberMe=true"
+    private fun fetchAuth(email: String, password: String): Thread {
+        val postData = "email=$email&password=$password&rememberMe=true"
         return Thread {
             val url = URL("https://social-network.samuraijs.com/api/1.0/auth/login")
             val connection = url.openConnection() as HttpsURLConnection
@@ -45,34 +42,37 @@ class AuthActivity : AppCompatActivity() {
             connection.setRequestProperty("Content-Length", postData.length.toString())
             DataOutputStream(connection.outputStream).use { it.writeBytes(postData) }
             if (connection.responseCode == 200) {
-                val inputStream = connection.inputStream
-                val inputStreamReader= InputStreamReader(inputStream, "UTF-8")
-                val jsonObject: JsonObject = JsonParser.parseReader(inputStreamReader).asJsonObject
-
-                // Convert raw JSON to pretty JSON using GSON library
-                val gson = GsonBuilder().setPrettyPrinting().create()
-                val prettyJson = gson.toJson(JsonParser.parseString(jsonObject.toString()))
-                val request = Gson().fromJson(prettyJson, Request::class.java)
+                val inputSystem = connection.inputStream
+                val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
+                val request = Gson().fromJson(inputStreamReader, Request::class.java)
+                inputStreamReader.close()
+                inputSystem.close()
                 if (request.resultCode == 0) {
-                    val pressed = Intent(this,MainActivity::class.java)
+                    val pressed = Intent(this, MainActivity::class.java)
                     startActivity(pressed)
                 } else {
-                    Toast.makeText(this, "incorrect login or password", Toast.LENGTH_SHORT).show()
+                    println("error: ${request.messages[0]}")
                 }
-            } else{
-                Toast.makeText(this, "connection failed", Toast.LENGTH_SHORT).show()
+            } else {
+                println("connection failed")
             }
         }
+
     }
 }
 
-class Request (
+class Request(
     var data: RequestData,
     var messages: Array<String>,
-    var fieldsErrors: Array<String>,
+    var fieldsErrors: Array<FieldsErrors>,
     var resultCode: Int,
 )
 
-class RequestData (
+class RequestData(
     val userId: String
+)
+
+class FieldsErrors(
+    val field: String,
+    val error: String
 )
